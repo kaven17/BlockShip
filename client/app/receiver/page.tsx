@@ -134,6 +134,39 @@ export default function ReceiverPage() {
     }
   };
 
+  const fetchShipmentById = async (shipmentId: string) => {
+    if (!shipmentId) {
+      console.error("Please provide a valid shipment ID.");
+      return null;
+    }
+  
+    const firebaseUrl = `https://blockship-16599-default-rtdb.firebaseio.com/shipments/${shipmentId}.json`;
+  
+    try {
+      const response = await fetch(firebaseUrl, {
+        method: "GET",
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error fetching data: ${response.statusText}`);
+      }
+  
+      const data = await response.json();
+  
+      if (data) {
+        console.log("Shipment Data:", data);
+        return data;
+      } else {
+        console.log("No shipment found with the provided ID.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error retrieving shipment data:", error);
+      return null;
+    }
+  };
+  
+
   // Function to fetch shipment data from Firebase
   const fetchShipment = async () => {
     if (!shipmentId) {
@@ -145,21 +178,19 @@ export default function ReceiverPage() {
       return;
     }
 
+      // const shipmentId = ; // Replace with actual shipment ID
+      
+    
+
     setIsLoading(true);
     try {
-      const db = getDatabase();
-      const shipmentRef = ref(db, `shipments/${shipmentId}`);
-      const snapshot = await get(shipmentRef);
-      
-      if (snapshot.exists()) {
-        setShipment(snapshot.val());
+      const shipmentData = await fetchShipmentById(shipmentId);
+    
+      if (shipmentData) {
+        console.log("Retrieved Shipment Data:", shipmentData);
+        // Process the data or update UI here
       } else {
-        setShipment(null);
-        toast({
-          title: "Shipment not found",
-          description: "No shipment found with the provided ID",
-          variant: "destructive",
-        });
+        console.log("Shipment not found or error occurred.");
       }
     } catch (error) {
       console.error("Error fetching shipment data:", error);
